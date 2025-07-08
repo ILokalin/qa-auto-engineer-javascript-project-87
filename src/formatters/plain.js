@@ -1,46 +1,29 @@
-// @ts-check
-import _ from 'lodash';
-
-const propertyToString = (path) => `Property '${path.join('.')}'`;
-
-const stringify = (data) => {
-  if (typeof data === 'string') {
-    return `'${data}'`;
+const getPropertyName = (property, parents) => [...parents, property].join('.')
+const stringify = (value) => {
+  if (value === null) {
+    return value
   }
-  if (!_.isObject(data)) {
-    return `${String(data)}`;
+
+  if (typeof value === 'string') {
+    return `'${value}'`
   }
-  return '[complex value]';
-};
+  return String(value)
+}
 
-const render = (node, path = []) => {
-  const { key, type } = node;
+const mapping = {
+  unchanged: () => [],
+  root: ({ children }, path, iter) => children.flatMap(node => iter(node, path, iter)),
+  added: (node, path) => `Property '${getPropertyName(node.key, path)}' was added with value: ${stringify(node.value)}`,
+  deleted: (node, path) => `Property '${getPropertyName(node.key, path)}' was removed`,
+  changed: ({ key, value1, value2 }, path) => {
+    const name = getPropertyName(key, path)
+    return `Property '${name}' was updated. From ${stringify(value1)} to ${stringify(value2)}`
+  },
+}
 
-  switch (type) {
-    case 'root': {
-      const { children } = node;
-      // eslint-disable-next-line no-shadow
-      const output = children.map((node) => render(node, path));
-      return output.filter(Boolean).join('\n');
-    }
-    case 'nested': {
-      const { children } = node;
-      // eslint-disable-next-line no-shadow
-      const output = children.flatMap((node) => render(node, [...path, key]));
-      return output.filter(Boolean).join('\n');
-    }
-    case 'changed': {
-      const data1 = stringify(node.value1);
-      const data2 = stringify(node.value2);
-      return `${propertyToString([...path, key])} was updated. From ${data1} to ${data2}`;
-    }
-    case 'removed':
-      return `${propertyToString([...path, key])} was removed`;
-    case 'added':
-      return `${propertyToString([...path, key])} was added with value: ${stringify(node.value)}`;
-    default:
-      return '';
-  }
-};
+const renderPlain = (ast) => {
+  const iter = (node, currentPath) => mapping[node.type](node, currentPath, iter)
+  return iter(ast, []).join('\n')
+}
 
-export default (tree) => render(tree);
+export default renderPlain

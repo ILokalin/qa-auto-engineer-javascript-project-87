@@ -1,18 +1,16 @@
-// @ts-check
-import renderStylish from './stylish.js';
-import renderPlain from './plain.js';
+import formatPlain from './plain.js'
+import formatStylish from './stylish.js'
 
 const formatters = {
-  stylish: renderStylish,
-  plain: renderPlain,
+  plain: formatPlain,
+  stylish: formatStylish,
   json: JSON.stringify,
-};
+}
 
-export default (data, type) => {
-  const format = formatters[type];
+export default (ast, type) => {
+  const format = formatters[type]
   if (!format) {
-    throw new Error(`Unknown format type: ${type}`);
+    throw new Error(`Unknown format '${type}'`)
   }
-
-  return format(data);
-};
+  return format(ast)
+}
