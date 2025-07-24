@@ -6,9 +6,6 @@
   "bin": {
     "gendiff": "bin/gendiff.js"
   },
-  "simple-git-hooks": {
-    "pre-push": "make lint"
-  },
   "engines": {
     "node": ">=14.0.0"
   },
@@ -37,7 +34,6 @@
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^26.5.3",
     "jest": "^28.1.1",
-    "jest-cli": "^28.1.1",
-    "simple-git-hooks": "^2.8.0"
+    "jest-cli": "^28.1.1"
   }
 }
