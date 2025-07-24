@@ -24,7 +24,20 @@ jobs:
 
       - name: Run tests with coverage
         run: make test-coverage
+
+      - name: Print coverage file for debug
+        run: |
+          ls -la coverage
+          cat coverage/lcov.info | head -n 20  
       - name: SonarQube Scan
         uses: SonarSource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=my-project-key
+            -Dsonar.host.url=https://sonar.mycompany.com
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.sources=src
+            -Dsonar.tests=__tests__
+            -Dsonar.test.inclusions=**/*.test.js
